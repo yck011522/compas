@@ -602,16 +602,15 @@ class RobotModel(Base):
         # The 1) takes precedence over the 2) if both are used.
         if not self.root or not self._joints:
             self._rcf = frame.copy()
-            return
-
-        base_link = self.get_link_by_name(self.get_base_link_name())
-
-        # if a fixed joint exists, set its origin based on the specified frame
-        if base_link and base_link.parent_joint and base_link.parent_joint.type == Joint.FIXED:
-            base_link.parent_joint.origin = Origin(frame.point, frame.xaxis, frame.yaxis)
         else:
-            # else, store the frame as a memory reference only
-            self._rcf = frame.copy()
+            base_link = self.get_link_by_name(self.get_base_link_name())
+
+            # if a fixed joint exists, set its origin based on the specified frame
+            if base_link and base_link.parent_joint and base_link.parent_joint.type == Joint.FIXED:
+                base_link.parent_joint.origin = Origin(frame.point, frame.xaxis, frame.yaxis)
+            else:
+                # else, store the frame as a memory reference only
+                self._rcf = frame.copy()
 
         self._create(self.root, self._root_transformation)
 
@@ -625,7 +624,7 @@ class RobotModel(Base):
             A transformation describing the root of the chain.
         """
         # Uninitialized robot, default to identity matrix
-        if not self.root or not self._joints:
+        if not self.root:
             return Transformation()
 
         base_link = self.get_link_by_name(self.get_base_link_name())
