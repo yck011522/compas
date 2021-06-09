@@ -10,6 +10,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+* Added pluggable function `trimesh_gaussian_curvature` in `compas_rhino`.
+* Added pluggable function `trimesh_mean_curvature` in `compas_rhino`.
+* Added pluggable function `trimesh_principal_curvature` in `compas_rhino`.
+* Added `copy` and `deepcopy` functionality to `compas.robots.Configuration`.
+* Added grasshopper component for drawing a frame.
+* Added `draw_origin` and `draw_axes`
+
+### Changed
+
+* Allow str or int as joint type in `compas.robots.Joint` constructor.
+* `compas_ghpython.artists.FrameArtist.draw` now draws a Rhino Plane.
+* Fixed bugs in `compas.geometry.bestfit_circle_numpy`.
+* Changed directory where ghuser components are installed.
+* Added ghuser components directory to those removed by the `clean` task.
+* Clean up the ghuser directory before building ghuser components.
+* Exposed function `draw_breps` in `compas_rhino.utilities`; example added.
+* Added `join` flag to function `draw_breps` in `compas_rhino.utilities`
+
+### Removed
+
+
+## [1.6.3] 2021-05-26
+
+### Added
+
+* Added `compas.topology.astar_lightest_path`.
+* Added jsonschema definitions for primitives and transformations.
+* Added schema implementation to primitives and transformations.
+* Added jsonschema implementation to primitives and transformations.
+* Added `compas.data.is_int3`, `compas.data.is_float3`, `compas_data.is_float4x4`.
+
+### Changed
+
+* Extended `compas.topology.astar_shortest_path` to work on `compas.datastructures.Mesh` and `compas.datastructures.Network`.
+* Fixed `compas.data.Data.to_jsonstring`.
+* Changed `compas.data.Data.data.setter` to raise `NotImplementedError`.
+* Changed annotations of `compas_blender.artists.BaseArtist`.
+* Fixed `__repr__` for primitives, shapes, transformations.
+
+### Removed
+
+* Removed duplicate cases from `compas.data.DataEncoder`.
+
+## [1.6.2] 2021-05-12
+
+### Added
+
+### Changed
+
+### Removed
+
+
+## [1.6.1] 2021-05-12
+
+### Added
+
+### Changed
+
+### Removed
+
+
+## [1.6.0] 2021-05-12
+
+### Added
+
 * Added infrastructure for building Grasshopper components for compas packages.
 * Added first Grasshopper component: COMPAS Info
 * Added the ability to set the robot coordinate frame (RCF) via the `RobotModel.rcf` property.
@@ -144,9 +209,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Fixed bug regarding a repeated call to `RobotModel.add_joint`.
 * Fixed bug in `compas_blender.RobotModelArtist.update`.
 * Fixed bug in `compas.datastructures.mesh_slice_plane`.
-* Fixed bug where initialising a `compas_blender.artists.Robotmodelartist` would create a new collection for each mesh and then also not put the mesh iton the created collection. 
-* Changed the initialisation of `compas_blender.artists.Robotmodelartist` to include a `collection`-parameter instead of a `layer`-parameter to be more consistent with Blender's nomenclature. 
-* Used a utility function from `compas_blender.utilities` to create the collection if none exists instead of using a new call to a bpy-method. 
+* Fixed bug where initialising a `compas_blender.artists.Robotmodelartist` would create a new collection for each mesh and then also not put the mesh iton the created collection.
+* Changed the initialisation of `compas_blender.artists.Robotmodelartist` to include a `collection`-parameter instead of a `layer`-parameter to be more consistent with Blender's nomenclature.
+* Used a utility function from `compas_blender.utilities` to create the collection if none exists instead of using a new call to a bpy-method.
 
 ### Removed
 
