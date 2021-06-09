@@ -7,7 +7,7 @@ from numpy import sqrt
 from numpy import mean
 from numpy import zeros
 from numpy.linalg import lstsq
-from scipy.optimize import leastsq
+from scipy.optimize import  least_squares, leastsq
 
 from compas.geometry import world_to_local_coordinates_numpy
 from compas.geometry import local_to_world_coordinates_numpy
@@ -66,7 +66,7 @@ def bestfit_frame_numpy(points):
     return o, uvw[0], uvw[1]
 
 
-def bestfit_circle_numpy(points):
+def bestfit_circle_numpy(points, jacob = False):
     """Fit a circle through a set of points.
 
     Parameters
@@ -103,10 +103,8 @@ def bestfit_circle_numpy(points):
 
     """
     o, uvw, _ = pca_numpy(points)
-    frame = [o, uvw[1], uvw[2]]
-
+    frame = [o, uvw[0], uvw[1]]
     rst = world_to_local_coordinates_numpy(frame, points)
-
     x = rst[:, 0]
     y = rst[:, 1]
 
@@ -114,7 +112,6 @@ def bestfit_circle_numpy(points):
         # compute the radius of the circle through each of the given points
         # for the current centre point
         return sqrt((x - xc) ** 2 + (y - yc) ** 2)
-
     def f(c):
         # compute the deviation of the radius of each sample point
         # from the average radius
@@ -122,10 +119,59 @@ def bestfit_circle_numpy(points):
         Ri = dist(*c)
         return Ri - Ri.mean()
 
-    xm = mean(x)
-    ym = mean(y)
+    from  numpy import empty, newaxis
+    import numpy as np
+
+    # def Df_2b(c):
+    #     """ Jacobian of f_2b
+    #     The axis corresponding to derivatives must be coherent with the col_deriv option of leastsq"""
+    #     xc, yc     = c
+    #     df2b_dc    = empty((len(c), x.size))
+
+    #     Ri = dist(xc, yc)
+    #     df2b_dc[0] = (xc - x)/Ri                   # dR/dxc
+    #     df2b_dc[1] = (yc - y)/Ri                   # dR/dyc
+    #     df2b_dc    = df2b_dc - df2b_dc.mean(axis=1)[:, newaxis]
+
+    #     return df2b_dc.T
+    # The addition of epsilon is to promote convergence within leastsq,
+    # which seems to strongly dislike (0, 0) as an initial guess.
+    epsilon = .00001
+    # xm = mean(x) + epsilon
+    # ym = mean(y) + epsilon
+    xm = ym = epsilon
     c0 = xm, ym
-    c, error = leastsq(f, c0)
+    # result = least_squares(f, c0 , jac= Df_2b, ftol=1e-15, method ='lm',verbose =2 ) # works
+    # result = least_squares(f, c0 , jac= Df_2b, ftol=None, method ='trf',verbose =2 ) # works
+    # result = least_squares(f, c0 , ftol=None, method ='trf',verbose =2 ) # works
+    # result = least_squares(f, c0 , ftol=np.finfo(float).resolution , method ='lm',verbose =2 ) # does not work
+    # result = least_squares(f, c0 , ftol=np.finfo(float).resolution , gtol=1e-15,  method ='lm',verbose =2 ) # does not work
+    # c = result.x
+
+
+    def Df_2b(c):
+        """ Jacobian of f_2b
+        The axis corresponding to derivatives must be coherent with the col_deriv option of leastsq"""
+        xc, yc     = c
+        df2b_dc    = empty((len(c), x.size))
+
+        Ri = dist(xc, yc)
+        df2b_dc[0] = (xc - x)/Ri                   # dR/dxc
+        df2b_dc[1] = (yc - y)/Ri                   # dR/dyc
+        df2b_dc    = df2b_dc - df2b_dc.mean(axis=1)[:, newaxis]
+
+        return df2b_dc
+
+    # result = leastsq(f, c0 , Dfun= Df_2b, ftol=1e-15 ) # works\
+    # result = leastsq(f, c0, ftol=np.finfo(float).resolution) # does not work
+
+    if jacob:
+        result = leastsq(f, c0 , Dfun= Df_2b, ftol=np.finfo(float).resolution, col_deriv=True) # works
+    else:
+        result = leastsq(f, c0 , ftol=np.finfo(float).resolution) # works
+
+    c = result[0]
+
 
     # compute the radius of the circle through each sample point for the
     # computed center point.
