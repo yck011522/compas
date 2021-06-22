@@ -8,7 +8,7 @@ from compas.geometry import Transformation
 from compas.geometry import Frame
 from compas.geometry import Vector
 
-from ._shape import Shape
+from compas.geometry.shapes._shape import Shape
 
 
 __all__ = ['Box']
@@ -280,7 +280,7 @@ class Box(Shape):
     # ==========================================================================
 
     def __repr__(self):
-        return 'Box({0}, {1}, {2}, {3})'.format(self.frame, self.xsize, self.ysize, self.zsize)
+        return 'Box({0!r}, {1!r}, {2!r}, {3!r})'.format(self.frame, self.xsize, self.ysize, self.zsize)
 
     def __len__(self):
         return 4
@@ -560,17 +560,3 @@ class Box(Shape):
         self.xsize *= Sc[0, 0]
         self.ysize *= Sc[1, 1]
         self.zsize *= Sc[2, 2]
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-
-if __name__ == '__main__':
-
-    import doctest
-
-    from compas.geometry import Transformation  # noqa : F401
-
-    doctest.testmod(globs=globals())

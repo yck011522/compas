@@ -1,3 +1,9 @@
+"""
+.. testsetup::
+
+    from compas.geometry import Polyline
+
+"""
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
@@ -67,6 +73,29 @@ class Polyline(Primitive):
         self.points = points
 
     @property
+    def DATASCHEMA(self):
+        from schema import Schema
+        from compas.data import is_float3
+        return Schema({
+            "points": lambda x: [is_float3(i) for i in x]
+        })
+
+    @property
+    def JSONSCHEMA(self):
+        from compas import versionstring
+        schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$id": "https://github.com/compas-dev/compas/schemas/polyline.json",
+            "$compas": versionstring,
+            "type": "object",
+            "properties": {
+                "points": {"type": "array", "minItems": 2, "items": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}}
+            },
+            "required": ["points"]
+        }
+        return schema
+
+    @property
     def data(self):
         """Returns the data dictionary that represents the polyline.
 
@@ -110,7 +139,7 @@ class Polyline(Primitive):
     # ==========================================================================
 
     def __repr__(self):
-        return "Polyline([{}])".format(", ".join(["{}".format(point) for point in self.points]))
+        return "Polyline([{0}])".format(", ".join(["{0!r}".format(point) for point in self.points]))
 
     def __len__(self):
         return len(self.points)
@@ -150,9 +179,8 @@ class Polyline(Primitive):
 
         Examples
         --------
-        >>> polyline = Polyline.from_data({'points': [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]]})
-        >>> polyline
-        Polyline(Point(0.000, 0.000, 0.000), Point(1.000, 0.000, 0.000), Point(1.000, 1.000, 0.000))
+        >>> Polyline.from_data({'points': [[0.0, 0.0, 0.0], [1.0, 0.0, 0.0], [1.0, 1.0, 0.0]]})
+        Polyline([Point(0.000, 0.000, 0.000), Point(1.000, 0.000, 0.000), Point(1.000, 1.000, 0.000)])
         """
         return cls(data['points'])
 
@@ -267,7 +295,7 @@ class Polyline(Primitive):
         """Splits a polyline at corners larger than the given angle_threshold
 
         Parameters
-        -----------
+        ----------
         angle_threshold : float
             In radians.
 
@@ -312,7 +340,7 @@ class Polyline(Primitive):
         """Calculates the tangent vector of a point on a polyline
 
         Parameters
-        -----------
+        ----------
         point: :class:`compas.geometry.Point`
 
         Returns
@@ -328,7 +356,7 @@ class Polyline(Primitive):
         """Divide a polyline in equal segments.
 
         Parameters
-        -----------
+        ----------
         num_segments : int
 
         Returns
@@ -344,7 +372,7 @@ class Polyline(Primitive):
         """Splits a polyline in segments of a given length.
 
         Parameters
-        -----------
+        ----------
         length : float
 
         strict : bool
@@ -386,13 +414,3 @@ class Polyline(Primitive):
             division_pts.append(self.points[-1])
 
         return division_pts
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-    import doctest
-    doctest.testmod(globs=globals())

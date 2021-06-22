@@ -62,7 +62,7 @@ def help(ctx):
     'docs': 'True to clean up generated documentation, otherwise False',
     'bytecode': 'True to clean up compiled python files, otherwise False.',
     'builds': 'True to clean up build/packaging artifacts, otherwise False.'})
-def clean(ctx, docs=True, bytecode=True, builds=True):
+def clean(ctx, docs=True, bytecode=True, builds=True, ghuser=True):
     """Cleans the local copy from compiled artifacts."""
 
     with chdir(BASE_FOLDER):
@@ -92,6 +92,9 @@ def clean(ctx, docs=True, bytecode=True, builds=True):
             folders.append('build/')
             folders.append('src/compas.egg-info/')
 
+        if ghuser:
+            folders.append('src/compas_ghpython/components/ghuser')
+
         for folder in folders:
             shutil.rmtree(os.path.join(BASE_FOLDER, folder), ignore_errors=True)
 
@@ -107,8 +110,6 @@ def docs(ctx, doctest=False, rebuild=False, check_links=False):
         clean(ctx)
 
     with chdir(BASE_FOLDER):
-        # ctx.run('sphinx-autogen docs/**.rst')
-
         if doctest:
             testdocs(ctx, rebuild=rebuild)
 
@@ -130,8 +131,7 @@ def lint(ctx):
 def testdocs(ctx, rebuild=False):
     """Test the examples in the docstrings."""
     log.write('Running doctest...')
-    opts = '-E' if rebuild else ''
-    ctx.run('sphinx-build {} -b doctest docs dist/docs'.format(opts))
+    ctx.run('pytest --doctest-modules')
 
 
 @task()
@@ -157,7 +157,8 @@ def check(ctx):
 
 
 @task(help={
-      'checks': 'True to run all checks before testing, otherwise False.'})
+      'checks': 'True to run all checks before testing, otherwise False.',
+      'doctest': 'True to run doctest on all modules, otherwise False.'})
 def test(ctx, checks=False, doctest=False):
     """Run all tests."""
     if checks:
@@ -192,9 +193,11 @@ def prepare_changelog(ctx):
       'ironpython': 'Command for running the IronPython executable. Defaults to `ipy`.'})
 def build_ghuser_components(ctx, gh_io_folder=None, ironpython=None):
     """Build Grasshopper user objects from source"""
+    clean(ctx, docs=False, bytecode=False, builds=False, ghuser=True)
     with chdir(BASE_FOLDER):
         with tempfile.TemporaryDirectory('actions.ghcomponentizer') as action_dir:
-            target_dir = source_dir = os.path.abspath('src/compas_ghpython/components')
+            source_dir = os.path.abspath('src/compas_ghpython/components')
+            target_dir = os.path.join(source_dir, 'ghuser')
             ctx.run('git clone https://github.com/compas-dev/compas-actions.ghpython_components.git {}'.format(action_dir))
             if not gh_io_folder:
                 import compas_ghpython
@@ -225,19 +228,17 @@ def release(ctx, release_type):
     # Build project
     ctx.run('python setup.py clean --all sdist bdist_wheel')
 
+    # Prepare changelog for next release
+    prepare_changelog(ctx)
+
+    # Clean up local artifacts
+    clean(ctx)
+
     # Upload to pypi
-    if confirm('You are about to upload the release to pypi.org. Are you sure? [y/N]'):
-        files = ['dist/*.whl', 'dist/*.gz', 'dist/*.zip']
-        dist_files = ' '.join([pattern for f in files for pattern in glob.glob(f)])
-
-        if len(dist_files):
-            ctx.run('twine upload --skip-existing %s' % dist_files)
-
-            prepare_changelog(ctx)
-        else:
-            raise Exit('No files found to release')
+    if confirm('Everything is ready. You are about to push to git which will trigger a release to pypi.org. Are you sure? [y/N]'):
+        ctx.run('git push --tags && git push')
     else:
-        raise Exit('Aborted release')
+        raise Exit('You need to manually revert the tag/commits created.')
 
 
 @contextlib.contextmanager

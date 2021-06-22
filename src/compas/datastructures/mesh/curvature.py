@@ -42,9 +42,9 @@ def trimesh_gaussian_curvature(mesh):
 
     .. math::
 
-        k_{G}(v_{i}) = 2\pi - \sum_{j \in N(i)} \teta_{ij}
+        k_{G}(v_{i}) = 2\pi - \sum_{j \in N(i)} \theta_{ij}
 
-    where :math:`N(i)` are the triangles incident on vertex :math:`i` and :math:`\teta_{ij}`
+    where :math:`N(i)` are the triangles incident on vertex :math:`i` and :math:`\theta_{ij}`
     is the angle at vertex :math:`i` in triangle :math:`j`.
 
     """
@@ -64,13 +64,3 @@ def trimesh_gaussian_curvature(mesh):
                 angles.append(angle_points(o, a, b))
         curvature.append(pi2 - sum(angles))
     return curvature
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    import doctest
-    doctest.testmod(globs=globals())

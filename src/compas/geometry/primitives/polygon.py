@@ -1,3 +1,9 @@
+"""
+.. testsetup::
+
+    from compas.geometry import Polygon
+
+"""
 from __future__ import print_function
 from __future__ import absolute_import
 from __future__ import division
@@ -79,6 +85,29 @@ class Polygon(Primitive):
         self.points = points
 
     @property
+    def DATASCHEMA(self):
+        from schema import Schema
+        from compas.data import is_float3
+        return Schema({
+            "points": lambda x: [is_float3(i) for i in x]
+        })
+
+    @property
+    def JSONSCHEMA(self):
+        from compas import versionstring
+        schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$id": "https://github.com/compas-dev/compas/schemas/polygon.json",
+            "$compas": versionstring,
+            "type": "object",
+            "properties": {
+                "points": {"type": "array", "minItems": 2, "items": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "number"}}}
+            },
+            "required": ["points"]
+        }
+        return schema
+
+    @property
     def data(self):
         """dict : The data dictionary that represents the polygon."""
         return {'points': [list(point) for point in self.points]}
@@ -148,7 +177,7 @@ class Polygon(Primitive):
     # ==========================================================================
 
     def __repr__(self):
-        return "Polygon([{}])".format(", ".join(["{}".format(point) for point in self.points]))
+        return "Polygon([{0}])".format(", ".join(["{0!r}".format(point) for point in self.points]))
 
     def __len__(self):
         return len(self.points)
@@ -304,13 +333,3 @@ class Polygon(Primitive):
 
     def contains(self, point):
         pass
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-    import doctest
-    doctest.testmod(globs=globals())

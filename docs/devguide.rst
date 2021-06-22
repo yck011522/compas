@@ -145,7 +145,7 @@ Type hints
 ==========
 
 Type hints should be added to stub files at the public API level
-of the main packages (see :ref:`code_structure`).
+of the main packages (see :ref:`code-structure`).
 This allows the type hints to be written using Python 3 style
 annotations while maintaining compatibility with Python 2.7 for Rhino/GH.
 
@@ -239,9 +239,9 @@ so after the first installation, it is usually not required to reinstall them, o
 
 .. note::
 
-    This step requires IronPython version < 3.0 to be available on the system.  The default behavior is to run the command
-    `ipy`.  If this command is not available or is the wrong version, the optional `ironpython` argument will replace it, eg
-    `invoke build-ghuser-components --ironpython="mono path/to/ipy.exe"`.
+    This step requires IronPython version 2.7 to be available on the system.  The default behavior is to run the command
+    ``ipy``.  If this command is not available or is the wrong version, the optional ``ironpython`` argument will replace it, eg
+    ``invoke build-ghuser-components --ironpython="mono path/to/ipy.exe"``.
 
 .. _plugins:
 

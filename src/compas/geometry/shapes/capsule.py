@@ -128,7 +128,7 @@ class Capsule(Shape):
     # ==========================================================================
 
     def __repr__(self):
-        return 'Capsule({0}, {1})'.format(self.line, self.radius)
+        return 'Capsule({0!r}, {1!r})'.format(self.line, self.radius)
 
     def __len__(self):
         return 2
@@ -266,13 +266,3 @@ class Capsule(Shape):
             The transformation used to transform the capsule.
         """
         self.line.transform(transformation)
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    import doctest
-    doctest.testmod(globs=globals())

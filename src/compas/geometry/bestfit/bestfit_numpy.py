@@ -4,7 +4,6 @@ from __future__ import division
 
 from numpy import asarray
 from numpy import sqrt
-from numpy import mean
 from numpy import zeros
 from numpy.linalg import lstsq
 from scipy.optimize import  least_squares, leastsq
@@ -104,6 +103,7 @@ def bestfit_circle_numpy(points, jacob = False):
     """
     o, uvw, _ = pca_numpy(points)
     frame = [o, uvw[0], uvw[1]]
+
     rst = world_to_local_coordinates_numpy(frame, points)
     x = rst[:, 0]
     y = rst[:, 1]
@@ -119,27 +119,10 @@ def bestfit_circle_numpy(points, jacob = False):
         Ri = dist(*c)
         return Ri - Ri.mean()
 
-    from  numpy import empty, newaxis
-    import numpy as np
-
-    # def Df_2b(c):
-    #     """ Jacobian of f_2b
-    #     The axis corresponding to derivatives must be coherent with the col_deriv option of leastsq"""
-    #     xc, yc     = c
-    #     df2b_dc    = empty((len(c), x.size))
-
-    #     Ri = dist(xc, yc)
-    #     df2b_dc[0] = (xc - x)/Ri                   # dR/dxc
-    #     df2b_dc[1] = (yc - y)/Ri                   # dR/dyc
-    #     df2b_dc    = df2b_dc - df2b_dc.mean(axis=1)[:, newaxis]
-
-    #     return df2b_dc.T
-    # The addition of epsilon is to promote convergence within leastsq,
-    # which seems to strongly dislike (0, 0) as an initial guess.
-    epsilon = .00001
-    # xm = mean(x) + epsilon
-    # ym = mean(y) + epsilon
-    xm = ym = epsilon
+    # The mean of x and y are very nearly 0 (1.0e-15), which reveals a numerical
+    # instability of the problem.  So, we choose our initial guess
+    # to be an epsilon bigger than that.
+    xm = ym = 0.00001
     c0 = xm, ym
     # result = least_squares(f, c0 , jac= Df_2b, ftol=1e-15, method ='lm',verbose =2 ) # works
     # result = least_squares(f, c0 , jac= Df_2b, ftol=None, method ='trf',verbose =2 ) # works
@@ -240,13 +223,3 @@ def bestfit_sphere_numpy(points):
     t = (C[0]*C[0]) + (C[1]*C[1]) + (C[2]*C[2]) + C[3]
     radius = sqrt(t)
     return [float(C[0][0]), float(C[1][0]), float(C[2][0])], radius
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    import doctest
-    doctest.testmod(globs=globals())

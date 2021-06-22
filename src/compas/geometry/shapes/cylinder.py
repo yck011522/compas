@@ -149,7 +149,7 @@ class Cylinder(Shape):
     # ==========================================================================
 
     def __repr__(self):
-        return 'Cylinder({0}, {1})'.format(self.circle, self.height)
+        return 'Cylinder({0!r}, {1!r})'.format(self.circle, self.height)
 
     def __len__(self):
         return 2
@@ -279,13 +279,3 @@ class Cylinder(Shape):
 
         """
         self.circle.transform(transformation)
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    import doctest
-    doctest.testmod()

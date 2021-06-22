@@ -10,12 +10,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+### Changed
+* `compas.robots.Axis` is now normalized upon initialization.
+
+### Fixed
+* Fixed `Configuration.from_data` to be backward-compatible with JSON data generated before `compas 1.3.0`
+
+### Removed
+
+
+## [1.7.1] 2021-06-14
+
+### Added
+
+### Changed
+
+* Fixed bundling of ghuser components.
+
+### Removed
+
+
+## [1.7.0] 2021-06-14
+
+### Added
+
 * Added pluggable function `trimesh_gaussian_curvature` in `compas_rhino`.
 * Added pluggable function `trimesh_mean_curvature` in `compas_rhino`.
 * Added pluggable function `trimesh_principal_curvature` in `compas_rhino`.
 * Added `copy` and `deepcopy` functionality to `compas.robots.Configuration`.
 * Added grasshopper component for drawing a frame.
-* Added `draw_origin` and `draw_axes`
+* Added `draw_origin` and `draw_axes`.
 
 ### Changed
 
@@ -25,8 +49,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Changed directory where ghuser components are installed.
 * Added ghuser components directory to those removed by the `clean` task.
 * Clean up the ghuser directory before building ghuser components.
-* Exposed function `draw_breps` in `compas_rhino.utilities`; example added.
-* Added `join` flag to function `draw_breps` in `compas_rhino.utilities`
+* Fixed bug in `compas.geometry.distance.closest_point_on_segment_xy`.
+* Fixed bug in Rhino implementations of `trimesh` curvature functions.
 
 ### Removed
 
@@ -76,10 +100,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 * Added infrastructure for building Grasshopper components for compas packages.
-* Added first Grasshopper component: COMPAS Info
-* Added the ability to set the robot coordinate frame (RCF) via the `RobotModel.rcf` property.
+* Added first Grasshopper component: COMPAS Info.
+* Added Grasshopper components for JSON serialization.
+* Added `compas_rhino.utilities.set_object_attributes`.
+* Added `from_jsonstring` and `to_jsonstring`.
+* Added Grasshopper component documentation.
 
 ### Changed
+
+* Moved json dump and load to data package.
+* Changed parameters and return value of `compas_rhino.utilities.get_object_attributes`.
+* Removed `doctest` execution code from src.
+* Removed `if __name__ == '__main__'` section from src.
+* Optimized the conversion of Rhino Meshes to COMPAS meshes.
+* Fix issue with GH User symlink created as directory symlink on some cases.
 
 ### Removed
 

@@ -46,6 +46,7 @@ class Scale(Transformation):
     >>> S[2, 2] == 3
     True
 
+    >>> from compas.geometry import Point, Frame
     >>> point = Point(2, 5, 0)
     >>> frame = Frame(point, (1, 0, 0), (0, 1, 0))
     >>> points = [point, Point(2, 10, 0)]
@@ -61,6 +62,9 @@ class Scale(Transformation):
             if not allclose(flatten(matrix), flatten(check)):
                 raise ValueError('This is not a proper scale matrix.')
         super(Scale, self).__init__(matrix=matrix)
+
+    def __repr__(self):
+        return "Scale({0!r})".format(self.matrix)
 
     @classmethod
     def from_factors(cls, factors, frame=None):
@@ -81,6 +85,7 @@ class Scale(Transformation):
 
         Examples
         --------
+        >>> from compas.geometry import Point, Frame
         >>> point = Point(2, 5, 0)
         >>> frame = Frame(point, (1, 0, 0), (0, 1, 0))
         >>> points = [point, Point(2, 10, 0)]
@@ -97,14 +102,3 @@ class Scale(Transformation):
         else:
             S.matrix = matrix_from_scale_factors(factors)
         return S
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == '__main__':
-
-    import doctest
-    from compas.geometry import Point, Frame  # noqa: F811, F401
-    doctest.testmod(globs=globals())

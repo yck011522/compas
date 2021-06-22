@@ -50,6 +50,9 @@ class Projection(Transformation):
                 raise ValueError('This is not a proper projection matrix.')
         super(Projection, self).__init__(matrix=matrix)
 
+    def __repr__(self):
+        return "Projection({0!r})".format(self.matrix)
+
     @classmethod
     def from_plane(cls, plane):
         """Returns an orthogonal ``Projection`` to project onto a plane.
@@ -66,6 +69,7 @@ class Projection(Transformation):
 
         Examples
         --------
+        >>> from compas.geometry import Plane
         >>> point = [0, 0, 0]
         >>> normal = [0, 0, 1]
         >>> plane = Plane(point, normal)
@@ -94,6 +98,7 @@ class Projection(Transformation):
 
         Examples
         --------
+        >>> from compas.geometry import Plane
         >>> point = [0, 0, 0]
         >>> normal = [0, 0, 1]
         >>> plane = Plane(point, normal)
@@ -122,6 +127,7 @@ class Projection(Transformation):
 
         Examples
         --------
+        >>> from compas.geometry import Plane
         >>> point = [0, 0, 0]
         >>> normal = [0, 0, 1]
         >>> plane = Plane(point, normal)
@@ -150,14 +156,3 @@ class Projection(Transformation):
         P = cls()
         P.matrix = matrix_from_perspective_entries(perspective_entries)
         return P
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    import doctest
-    from compas.geometry import Plane  # noqa: F401
-    doctest.testmod(globs=globals())

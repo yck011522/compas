@@ -102,7 +102,7 @@ class Transformation(Data):
         return not self.__eq__(other)
 
     def __repr__(self):
-        return "Transformation({})".format(self.matrix)
+        return "Transformation({0!r})".format(self.matrix)
 
     def __str__(self):
         s = "[[%s],\n" % ",".join([("%.4f" % n).rjust(10) for n in self.matrix[0]])
@@ -124,6 +124,37 @@ class Transformation(Data):
             self.matrix[2][:],
             self.matrix[3][:]]
         return cls(matrix)
+
+    @property
+    def DATASCHEMA(self):
+        from schema import Schema
+        from compas.data import is_float4x4
+        return Schema({"matrix": is_float4x4})
+
+    @property
+    def JSONSCHEMA(self):
+        from compas import versionstring
+        schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "$id": "https://github.com/compas-dev/compas/schemas/transformation.json",
+            "$compas": versionstring,
+            "type": "object",
+            "properties": {
+                "matrix": {
+                    "type": "array",
+                    "minItems": 4,
+                    "maxItems": 4,
+                    "items": {
+                        "type": "array",
+                        "minItems": 4,
+                        "maxItems": 4,
+                        "items": {"type": "number"}
+                    }
+                }
+            },
+            "required": ["matrix"]
+        }
+        return schema
 
     @property
     def data(self):
@@ -521,6 +552,7 @@ class Transformation(Data):
 
         Examples
         --------
+        >>> from compas.geometry import Scale, Translation, Rotation
         >>> trans1 = [1, 2, 3]
         >>> angle1 = [-2.142, 1.141, -0.142]
         >>> scale1 = [0.123, 2, 0.5]
@@ -589,49 +621,3 @@ class Transformation(Data):
         if isinstance(other, cls):
             return cls(multiply_matrices(self.matrix, other.matrix))
         return Transformation(multiply_matrices(self.matrix, other.matrix))
-
-
-# ==============================================================================
-# Main
-# ==============================================================================
-
-if __name__ == "__main__":
-
-    from compas.geometry import Translation  # noqa: F401
-    from compas.geometry import Rotation  # noqa: F401
-    from compas.geometry import Scale  # noqa: F401
-    from compas.geometry import Frame  # noqa: F401
-
-    import doctest
-    doctest.testmod(globs=globals())
-
-    # world = Frame.worldXY()
-    # frame = Frame([1.0, 1.0, 1.0], [0, 0, -1], [1, 0, 0])
-
-    # X1 = Transformation.from_frame_to_frame(world, frame)
-    # X2 = Transformation.from_frame(frame)
-    # X3 = Transformation.from_change_of_basis(frame, world)
-
-    # print(X1.matrix)
-    # print(X2.matrix)
-    # print(X3.matrix)
-
-    # trans1 = [1, 2, 3]
-    # angle1 = [-2.142, 1.141, -0.142]
-    # scale1 = [0.123, 2, 0.5]
-    # T1 = Translation.from_vector(trans1)
-    # R1 = Rotation.from_euler_angles(angle1)
-    # S1 = Scale.from_factors(scale1)
-    # M = T1 * R1 * S1
-    # S, H, R, T, P = M.decomposed()
-    # print(S1 == S)
-    # print(R1 == R)
-    # print(T1 == T)
-
-    # S, H, R, T, P = X3.decomposed()
-
-    # print(S)
-    # print(H)
-    # print(R)
-    # print(T)
-    # print(P)

@@ -3,6 +3,7 @@ from __future__ import division
 from __future__ import print_function
 
 from math import pi
+from copy import deepcopy
 
 from compas.data import Data
 
@@ -67,6 +68,12 @@ class FixedLengthList(list):
             self.validator(self, slice(i, j), sequence)
         super(FixedLengthList, self).__setslice__(i, j, sequence)
 
+    def __copy__(self):
+        return FixedLengthList(self)
+
+    def __deepcopy__(self, memodict={}):
+        return FixedLengthList([deepcopy(value, memodict) for value in self])
+
     def append(self, item): raise TypeError('Cannot change length of FixedLengthList')
     def extend(self, other): raise TypeError('Cannot change length of FixedLengthList')
     def insert(self, i, item): raise TypeError('Cannot change length of FixedLengthList')
@@ -116,12 +123,10 @@ class Configuration(Data):
     >>> config.joint_values
     [1.5707963267948966, 0.0, 0.0]
 
-    >>> from compas_fab.robots import Configuration
     >>> config = Configuration.from_prismatic_and_revolute_values([8.312], [math.pi/2, 0., 0., 0., 2*math.pi, 0.8])
     >>> str(config)
     'Configuration((8.312, 1.571, 0.000, 0.000, 0.000, 6.283, 0.800), (2, 0, 0, 0, 0, 0, 0))'
 
-    >>> from compas_fab.robots import Configuration
     >>> from compas.robots import Joint
     >>> config = Configuration([math.pi/2, 3., 0.1], [Joint.REVOLUTE, Joint.PRISMATIC, Joint.PLANAR])
     >>> str(config)
@@ -302,37 +307,6 @@ class Configuration(Data):
             len(prismatic_values) + [_JOINT_REVOLUTE] * len(revolute_values)
         return cls.from_data({'joint_values': values, 'joint_types': joint_types, 'joint_names': joint_names})
 
-    @classmethod
-    def from_data(cls, data):
-        """Construct a configuration from its data representation.
-
-        Parameters
-        ----------
-        data : :obj:`dict`
-            The data dictionary.
-
-        Returns
-        -------
-        :class:`Configuration`
-             An instance of :class:`Configuration`.
-        """
-        config = cls()
-        config.data = data
-        return config
-
-    def to_data(self):
-        """Get the data dictionary that represents the configuration.
-
-        This data can also be used to reconstruct the :class:`Configuration`
-        instance.
-
-        Returns
-        -------
-        :obj:`dict`
-            The data representing the configuration.
-        """
-        return self.data
-
     @property
     def data(self):
         """:obj:`dict` : The data representing the configuration.
@@ -350,8 +324,8 @@ class Configuration(Data):
 
     @data.setter
     def data(self, data):
-        self._joint_values = FixedLengthList(data.get('joint_values') or [])
-        self._joint_types = FixedLengthList(data.get('joint_types') or [])
+        self._joint_values = FixedLengthList(data.get('joint_values') or data.get('values') or [])
+        self._joint_types = FixedLengthList(data.get('joint_types') or data.get('types') or [])
         self._joint_names = FixedLengthList(data.get('joint_names') or [])
 
     @property
@@ -366,17 +340,6 @@ class Configuration(Data):
     def revolute_values(self):
         """:obj:`list` of :obj:`float` : Revolute joint values in radians."""
         return [v for i, v in enumerate(self.joint_values) if self.joint_types[i] == _JOINT_REVOLUTE]
-
-    def copy(self):
-        """Create a copy of this :class:`Configuration`.
-
-        Returns
-        -------
-        :class:`Configuration`
-            An instance of :class:`Configuration`
-        """
-        cls = type(self)
-        return cls(self.joint_values[:], self.joint_types[:], self.joint_names[:])
 
     def scale(self, scale_factor):
         """Scales the joint positions of the current configuration.
@@ -442,6 +405,7 @@ class Configuration(Data):
 
         Examples
         --------
+        >>> from compas.geometry import allclose
         >>> c1 = Configuration.from_revolute_values([1, 0, 3])
         >>> c2 = Configuration.from_revolute_values([1, 2 * pi, 4])
         >>> allclose(c1.iter_differences(c2), [0.0, 0.0, -1.0])
